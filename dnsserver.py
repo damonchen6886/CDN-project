@@ -8,6 +8,7 @@
 # ec2-18-231-122-62.sa-east-1.compute.amazonaws.com       Sao Paulo
 # ec2-3-101-37-125.us-west-1.compute.amazonaws.com        N. California
 
+# https://tools.ietf.org/html/rfc1035
 
     # +---------------------+
     # |        Header       |
