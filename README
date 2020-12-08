@@ -4,17 +4,17 @@ Team: gusong
 Members: Chen Gu, Jiahao Song
 Chen's work mainly focused on building a working DNS server, he uses DNS redirection to send clients to the replica
 server with the fastest response time.
-Jiahao's work mainly focused on building a HTTP server with cache management that returns content requested by clients
+Jiahao's work mainly focused on building a HTTP server with cache management that returns content requested by clients.
 ========================================================================================================================
 httpserver.py
 1. This supports basic HTTP GET request for client to fetch web pages.
 2. The server will run on a specified port (40000 - 65535) of any machines
 Caching Mechanism: Similar to LRU(Least Recently Used cache) Algorithm, leaning towards LCU(Least Commonly Used). Remove
-the record with the least hit count. Pseudo code posted:
-            if file exists in cache:
+the record with the least hit count. Pseudo code posted below:
+            if cache hit:
                 respond client with the file
-            elif file doesn't exist in cache:
-                fetch specific file on original server
+            elif cache doesn't get hit:
+                fetch file from original server
                 respond client with that file
 
 dnsserver.py
@@ -28,10 +28,10 @@ dnsserver.py
              5. Pack answer section with best replica ip
              6. Send the response to client
 
-We use http://ip-api.com/ API to fetch geo info of a particular IP)
-We calculated the location of the server based on the latitude and longitude provided by the api above
+We use http://ip-api.com/ API to fetch geo info of a particular IP).
+We calculated the location of the server based on the latitude and longitude provided by the api above.
 ========================================================================================================================
 We faced the challenge of not having clear instructions on how to pack and unpack DNS packet. We spent a lot of time
 packing the answer section but still have minor bugs.
-We faced the challenge of implementing a working cache management on httpserver using Json decoding and encoding;
+We faced the challenge of implementing a working cache management on httpserver using Json decoding and encoding.
 We looked up plenty of information to find the best way to calculate the geo-location.
