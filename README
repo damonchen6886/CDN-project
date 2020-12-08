@@ -28,7 +28,7 @@ dnsserver.py
              5. Pack answer section with best replica ip
              6. Send the response to client
 
-We use http://ip-api.com/ API to fetch geo info of a particular IP).
+We use http://ip-api.com/ API to fetch geo info of a particular IP.
 We calculated the location of the server based on the latitude and longitude provided by the api above.
 ========================================================================================================================
 We faced the challenge of not having clear instructions on how to pack and unpack DNS packet. We spent a lot of time
