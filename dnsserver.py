@@ -131,7 +131,7 @@ def pack_all(ec2_ip_addr,data):
     header = process_header(data)
     question = process_question(data)
     answer = process_answer(ec2_ip_addr)
-    return header+ question + answer
+    return header+ question + answer + data[-4:]
 
 
 #  needs: best_ec2_ip  data[0](bytes)  address(host, port)
