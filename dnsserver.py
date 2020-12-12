@@ -124,7 +124,7 @@ def findDomain(data):
         else:
             name = name + chr(dns_question_data[i])
         i = i+1
-    
+    # set to global variable
     global DNS_DOMAIN_NAME
     DNS_DOMAIN_NAME = name
     global ANS_END_IDX
@@ -197,6 +197,9 @@ def starter():
             print("domain names are different")
             continue
         # send back
+
+        #TODO: add cache to improve the performance: record those ips that already made request before into dictionary 
+        #TODO: add DNS to httpserver communication to get RTTT and improve the accuracy of the best EC2
         server_socket.sendto(response_packet,client_addr)
        
 
