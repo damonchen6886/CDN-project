@@ -131,9 +131,8 @@ def findDomain(data):
     ANS_END_IDX = i+5
     # domin = dns_question_data[0: i+1]
     # tpye_and_classify = dns_question_data[i+1:i+5]
-    
-    
     return
+
 def process_question(data):
     # if data >= 12:
     index = ANS_END_IDX
@@ -165,8 +164,6 @@ def pack_all(ec2_ip_addr,data):
     question = process_question(data)
     answer = process_answer(ec2_ip_addr)
     
-    print(DNS_DOMAIN_NAME)
-    print(ANS_END_IDX)
     return header+ question + answer + data[12+ ANS_END_IDX:]
 
 
@@ -181,28 +178,25 @@ def starter():
     
     while 1:
         print("running")
-        print("********************")
-        print("********************")
-        print("few bugs needs to be fix, dns packet answer and additioanl sec messed up, \ndig currently on work while using \ndig -p <port> @cs5700cdnproject.ccs.neu.edu cs5700cdn.example.com")
-        
+
         data = server_socket.recvfrom(BUF_SIZE)
         packet = data[0]
-        print("running1")
+        # print("running1")
         client_addr = data[1]
         client_ip_addr = data[1][0]
-        print("running2")
+        # print("running2")
         # header = unpack("!HHHHHH",packet[0:12])
         #get the best ec2 ip address
         best_ec2_server = get_min_ec2_loc(client_ip_addr)
 
         # pack the udp meesage  
         response_packet = pack_all(best_ec2_server,packet)
-        domain = socket.getfqdn()
-        # print(domain)
-        # if domain != DOMAIN_NAME:
-        #     print("domain names are different")
-        #     continue
-        # send tback
+        
+       
+        if DNS_DOMAIN_NAME != DOMAIN_NAME:
+            print("domain names are different")
+            continue
+        # send back
         server_socket.sendto(response_packet,client_addr)
        
 
