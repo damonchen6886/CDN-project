@@ -89,6 +89,8 @@ def build_server():
     return server
 
 
+
+
 def process_header(data):
     # print(data)
     dns_header_data  = data[0:12]
@@ -103,10 +105,32 @@ def process_header(data):
     # return 
     
 
+# def findDomain(data):
+#     dns_question_data = data[12:]
+#     domain_length = unpack("!B",dns_question_data[0])
 
+def findDomain(data):
+    dns_question_data = data[12:]
+    i = 1
+    name = ""
+    while True:
+        d = data[i]
+        if d == 0:
+            break
+        if d < 32:
+            name+= "."
+        else:
+            name = name + chr(data[i])
+        i = i+1
+    domin = data[12: i+1]
+    tpye_and_classify = data[i+1:i+5]
+    print(i+5)
+    return 27
 def process_question(data):
     # if data >= 12:
-    dns_question_data = data[12:]
+    index = findDomain(data)
+    # print(index)
+    dns_question_data = data[12:12+index]
     # print(dns_question_data)
     return dns_question_data
     # return
@@ -131,7 +155,8 @@ def pack_all(ec2_ip_addr,data):
     header = process_header(data)
     question = process_question(data)
     answer = process_answer(ec2_ip_addr)
-    return header+ question + answer + data[-4:]
+    length  = findDomain(data)
+    return header+ question + answer + data[length+1:]
 
 
 #  needs: best_ec2_ip  data[0](bytes)  address(host, port)
