@@ -156,7 +156,7 @@ def pack_all(ec2_ip_addr,data):
     question = process_question(data)
     answer = process_answer(ec2_ip_addr)
     length  = findDomain(data)
-    return header+ question + answer + data[length+1:]
+    return header+ question + answer + data[12+ length:]
 
 
 #  needs: best_ec2_ip  data[0](bytes)  address(host, port)
