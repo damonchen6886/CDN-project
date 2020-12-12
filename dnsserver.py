@@ -83,6 +83,8 @@ from struct import pack, unpack
 PORT = int(sys.argv[2])
 DOMAIN_NAME = str(sys.argv[4])
 BUF_SIZE = 1024
+DNS_DOMAIN_NAME = ""
+ANS_END_IDX = 0
 def build_server():
     server = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     # server.bind(("",PORT))
@@ -114,21 +116,27 @@ def findDomain(data):
     i = 1
     name = ""
     while True:
-        d = data[i]
+        d = dns_question_data[i]
         if d == 0:
             break
         if d < 32:
             name+= "."
         else:
-            name = name + chr(data[i])
+            name = name + chr(dns_question_data[i])
         i = i+1
-    domin = data[12: i+1]
-    tpye_and_classify = data[i+1:i+5]
-    print(i+5)
-    return 27
+    
+    global DNS_DOMAIN_NAME
+    DNS_DOMAIN_NAME = name
+    global ANS_END_IDX
+    ANS_END_IDX = i+5
+    # domin = dns_question_data[0: i+1]
+    # tpye_and_classify = dns_question_data[i+1:i+5]
+    
+    
+    return
 def process_question(data):
     # if data >= 12:
-    index = findDomain(data)
+    index = ANS_END_IDX
     # print(index)
     dns_question_data = data[12:12+index]
     # print(dns_question_data)
@@ -153,10 +161,13 @@ def process_answer(ec2_ip_addr):
 
 def pack_all(ec2_ip_addr,data):
     header = process_header(data)
+    findDomain(data)
     question = process_question(data)
     answer = process_answer(ec2_ip_addr)
-    length  = findDomain(data)
-    return header+ question + answer + data[12+ length:]
+    
+    print(DNS_DOMAIN_NAME)
+    print(ANS_END_IDX)
+    return header+ question + answer + data[12+ ANS_END_IDX:]
 
 
 #  needs: best_ec2_ip  data[0](bytes)  address(host, port)
