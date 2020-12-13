@@ -183,6 +183,7 @@ def starter():
         packet = data[0]
         # print("running1")
         client_addr = data[1]
+        print(client_addr)
         client_ip_addr = data[1][0]
         # print("running2")
         # header = unpack("!HHHHHH",packet[0:12])
