@@ -192,13 +192,22 @@ def create_socket_for_http(ec2_ip):
     httpsocket.close()
     return rtt
 
+# return a list of two rtt that represent the top two ec2ip rrt time
+def get_rtt_for_top2(TWO_EC2_IP):
+    result = ""
+    rtts = []
+    for ec2_ip in TWO_EC2_IP:
+        rtt = create_socket_for_http(ec2_ip)
+        rtts.append[rtt]
+    return rtts
 
-def get_rtt_for_top2():
-    return
 
-
-def get_rtt_from_client(ec2_ip):
-    return
+def get_best_ec2_client():
+    rtts = get_rtt_for_top2(TWO_EC2_IP)
+    if rtts[0] > rtts[1]:
+        return TWO_EC2_IP[1]
+    else:
+        retrun TWO_EC2_IP[0]
 
 
 
