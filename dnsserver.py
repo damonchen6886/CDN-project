@@ -85,6 +85,7 @@ DOMAIN_NAME = str(sys.argv[4])
 BUF_SIZE = 1024
 DNS_DOMAIN_NAME = ""
 ANS_END_IDX = 0
+TWO_EC2_IP = []
 def build_server():
     server = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     # server.bind(("",PORT))
@@ -167,6 +168,40 @@ def pack_all(ec2_ip_addr,data):
     return header+ question + answer + data[12+ ANS_END_IDX:]
 
 
+    #TODO: add cache to improve the performance: record those ips that already made request before into dictionary 
+    #TODO: add DNS to httpserver communication to get RTTT and improve the accuracy of the best EC2
+def gengrate_request_2http(ec2_ip):
+    path = "/ping" + ec2_ip
+    request = "GET" + path + "HTTP/1.1"
+    print(request)
+    return request
+
+
+def create_socket_for_http(ec2_ip):
+    httpsocket = socket(socket.AF_INET,socket.SOCK_STREAM)
+    httpsocket.connect((ec2_ip,PORT))
+    s.sendall(gengrate_request_2http(ec2_ip).encode())
+    while True:
+        rtt_raw = httpsocket.recv(BUF_SIZE).decode()
+        print("result", rtt_raw)
+        index = rtt_raw.find("min/avg/max/stddev = ")
+        start_index = index+ len("min/avg/max/stddev = ")
+        rtt = rtt_raw[start_index,start_index+4]
+        print("rtt parse", rtt)
+        break
+    httpsocket.close()
+    return rtt
+
+
+def get_rtt_for_top2():
+    return
+
+
+def get_rtt_from_client(ec2_ip):
+    return
+
+
+
 #  needs: best_ec2_ip  data[0](bytes)  address(host, port)
 def starter():
     # initialize server
@@ -183,13 +218,16 @@ def starter():
         packet = data[0]
         # print("running1")
         client_addr = data[1]
-        print(client_addr)
+        # print(client_addr)
         client_ip_addr = data[1][0]
         # print("running2")
         # header = unpack("!HHHHHH",packet[0:12])
         #get the best ec2 ip address
-        best_ec2_server = get_min_ec2_loc(client_ip_addr)
-
+        global TWO_EC2_IP
+        TWO_EC2_IP = get_min_ec2_loc(client_ip_addr)
+        best_ec2_server = TWO_EC2_IP[0]
+        # print("best")
+        # print(best_ec2_ip)
         # pack the udp meesage  
         response_packet = pack_all(best_ec2_server,packet)
         
@@ -199,8 +237,7 @@ def starter():
             continue
         # send back
 
-        #TODO: add cache to improve the performance: record those ips that already made request before into dictionary 
-        #TODO: add DNS to httpserver communication to get RTTT and improve the accuracy of the best EC2
+
         server_socket.sendto(response_packet,client_addr)
        
 

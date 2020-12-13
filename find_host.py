@@ -46,22 +46,23 @@ def get_lat_lon(ip_addr):
     else:
         return ""
 
-
+# calculate the distance based on geo location and return top 2 ec2 server ip
 def get_min_ec2_loc(ip_addr):
     ip_loc = get_lat_lon(ip_addr)
-    
-    min_dis = float('inf')
     ec2_lat_lot = []
-    shortest_ec2_ip = ''
+    result = {}
+    top_two_ec2 = []
     for key, value in EC2_IP.items():
         ec2_lat_lot = get_lat_lon(value)
         distance =cal_distance(ip_loc[0],ip_loc[1],ec2_lat_lot[0],ec2_lat_lot[1])
-        # print(distance)
-        if min_dis > distance:
-            shortest_ec2_ip = value
-            min_dis = distance
+        result[distance] = value
+
+    keys =sorted(result)
+    top_two_ec2.append(result[keys[0]])
+    top_two_ec2.append(result[keys[1]])
+    # print(top_two_ec2)
     # print(shortest_ec2_ip)
-    return shortest_ec2_ip
+    return top_two_ec2
 
 
 def cal_distance(lat1,lon1,lat2,lon2):
