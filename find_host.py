@@ -66,7 +66,7 @@ def get_min_ec2_loc(ip_addr):
         # print("ec2_lat_lot",ec2_lat_lot)
         distance =cal_distance(ip_loc[1],ip_loc[0],ec2_lat_lot[1],ec2_lat_lot[0])
         result[distance] = value
-    print("result = ",result)
+    #print("result = ",result)
     keys =sorted(result)
     # print(keys)
     top_two_ec2.append(result[keys[0]])
