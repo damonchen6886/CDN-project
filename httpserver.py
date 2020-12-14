@@ -166,7 +166,8 @@ class HttpServer:
                 else:
                     rtt = self.scamper_rtt(getHttpPath(http_request))
                     print('rtt', rtt)
-                    client_socket.sendall(rtt.encode('utf-8'))
+                    client_socket.sendall(rtt)
+                    print("rtt sent!!!!!********")
                     client_socket.close()
 
             except KeyboardInterrupt:

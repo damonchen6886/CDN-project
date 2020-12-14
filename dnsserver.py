@@ -1,12 +1,12 @@
 
 # NOTE: This is your final list of servers
 # ec2-18-207-254-152.compute-1.amazonaws.com      Origin server (running Web server on port 8080)
-# ec2-34-238-192-84.compute-1.amazonaws.com       N. Virginia
-# ec2-13-231-206-182.ap-northeast-1.compute.amazonaws.com Tokyo
-# ec2-13-239-22-118.ap-southeast-2.compute.amazonaws.com  Sydney
-# ec2-34-248-209-79.eu-west-1.compute.amazonaws.com       Ireland
-# ec2-18-231-122-62.sa-east-1.compute.amazonaws.com       Sao Paulo
-# ec2-3-101-37-125.us-west-1.compute.amazonaws.com        N. California
+# ec2-34-238-192-84.compute-1.amazonaws.com       N. Virginia (34.238.192.84)
+# ec2-13-231-206-182.ap-northeast-1.compute.amazonaws.com Tokyo  (13.231.206.182)
+# ec2-13-239-22-118.ap-southeast-2.compute.amazonaws.com  Sydney (13.239.22.118)
+# ec2-34-248-209-79.eu-west-1.compute.amazonaws.com       Ireland (34.248.209.79)
+# ec2-18-231-122-62.sa-east-1.compute.amazonaws.com       Sao Paulo (18.231.122.62)
+# ec2-3-101-37-125.us-west-1.compute.amazonaws.com        N. California (3.101.37.125)
 
 # https://tools.ietf.org/html/rfc1035
 
@@ -171,17 +171,20 @@ def pack_all(ec2_ip_addr,data):
     #TODO: add cache to improve the performance: record those ips that already made request before into dictionary 
     #TODO: add DNS to httpserver communication to get RTTT and improve the accuracy of the best EC2
 def gengrate_request_2http(ec2_ip):
-    path = "/ping" + ec2_ip
-    request = "GET" + path + "HTTP/1.1"
+    path = "/testing-" + ec2_ip
+    request = "GET " + path + " HTTP/1.1"
     print(request)
     return request
 
 
 def create_socket_for_http(ec2_ip):
-    httpsocket = socket(socket.AF_INET,socket.SOCK_STREAM)
+    print("***********creating socket", ec2_ip)
+    httpsocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     httpsocket.connect((ec2_ip,PORT))
-    s.sendall(gengrate_request_2http(ec2_ip).encode())
+    httpsocket.sendall(gengrate_request_2http(ec2_ip).encode())
+    print("successfully sent")
     while True:
+        print("test")
         rtt_raw = httpsocket.recv(BUF_SIZE).decode()
         print("result", rtt_raw)
         index = rtt_raw.find("min/avg/max/stddev = ")
@@ -207,7 +210,7 @@ def get_best_ec2_client():
     if rtts[0] > rtts[1]:
         return TWO_EC2_IP[1]
     else:
-        retrun TWO_EC2_IP[0]
+        return TWO_EC2_IP[0]
 
 
 
@@ -234,7 +237,11 @@ def starter():
         #get the best ec2 ip address
         global TWO_EC2_IP
         TWO_EC2_IP = get_min_ec2_loc(client_ip_addr)
-        best_ec2_server = TWO_EC2_IP[0]
+        print(TWO_EC2_IP)
+        # best_ec2_server = TWO_EC2_IP[0]
+
+        best_ec2_server = get_best_ec2_client()
+
         # print("best")
         # print(best_ec2_ip)
         # pack the udp meesage  
