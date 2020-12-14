@@ -39,7 +39,7 @@ echo "begin to stop replicas!"
 for host in "${replicas[@]}"
 do
 	
-	ssh -i $keyfile $username@$host "killall python > /dev/null 2>&1"
+	ssh -i $keyfile $username@$host "killall python"
 done
 
 echo "Replicas stopped"
@@ -50,7 +50,7 @@ dnsserver="cs5700cdnproject.ccs.neu.edu"
 
 echo "Stopping DNS Server" $dnsserver
 
-ssh -i $keyfile $username@$dnsserver "killall python > /dev/null 2>&1"
+ssh -i $keyfile $username@$dnsserver "killall python"
 
 
 echo "DNS server stopped successfully"
