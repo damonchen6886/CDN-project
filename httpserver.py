@@ -7,6 +7,9 @@ import urllib.request
 import subprocess
 from util import *
 
+"""
+Use global variables to reduce redundancy
+"""
 LIMIT_10MB = 10485760
 PORT = int(sys.argv[2])
 ORIGIN = sys.argv[4]
@@ -19,7 +22,9 @@ WRITEBINARY = 'wb'
 TEMPFILE = '.temp'
 HTTP200 = 'HTTP/1.1 200 OK'
 
-
+"""
+check if the port number is valid
+"""
 def parsePort(port, origin):
     if port < 40000 or port > 65535:
         sys.exit('Wrong port number.')
@@ -28,7 +33,9 @@ def parsePort(port, origin):
 
 
 
-
+"""
+A class that represents local cache and its methods
+"""
 class LocalCache:
 
     def __init__(self):
@@ -36,6 +43,11 @@ class LocalCache:
         self.lock = threading.Lock()
         self.cur_cache = self.generateCacheFolder()
 
+    """
+    check the folder to create local cache folder and return a list of key:value pairs.
+    key is the name of the file
+    value represents cache hit count
+    """
     def generateCacheFolder(self):
         with self.lock:
             if not os.path.exists(MY_CACHE_FOLDER):
@@ -43,6 +55,9 @@ class LocalCache:
             else:
                 return list(map(lambda x: (x, 1), os.listdir(MY_CACHE_FOLDER)))
 
+    """
+    taverse local cache to see if cache exists
+    """
     def visitLocalCache(self, path):
         with self.lock:
 
@@ -66,10 +81,14 @@ class LocalCache:
 
             return None
 
+    """
+    modify local cache depends on total size
+    """
     def writeToLocalCache(self, path, data):
         with self.lock:
 
-            write_file = gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY).write(data)
+            file = gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY)
+            file.write(data)
             
             gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY).close()
             get_size = os.path.getsize(hashing_path(path) + TEMPFILE)
@@ -89,7 +108,8 @@ class LocalCache:
                     os.remove(MY_CACHE_FOLDER_PATH + file_to_remove)
 
                 os.remove(hashing_path(path) + TEMPFILE)
-                temp_write = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY).write(data)
+                temp = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY)
+                temp.write(data)
                 gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY).close()
                 self.cur_cache.append((hashing_path(path), 1))
                 print('============================================')
@@ -99,7 +119,9 @@ class LocalCache:
 
 
 
-
+"""
+A class that represents http server
+"""
 class HttpServer:
     def __init__(self):
         self.http_server = ''
@@ -194,4 +216,3 @@ if __name__ == "__main__":
             server.running_server()
 
     
-    #  wget ec2-34-238-192-84.compute-1.amazonaws.com:50004/wiki/Main_Page
