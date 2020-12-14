@@ -64,7 +64,7 @@ def get_min_ec2_loc(ip_addr):
         ec2_lat_lot = EC2_IP_LOCATION[key]
         # ec2_lat_lot = get_lat_lon(value)
         # print("ec2_lat_lot",ec2_lat_lot)
-        distance =cal_distance(ip_loc[0],ip_loc[1],ec2_lat_lot[0],ec2_lat_lot[1])
+        distance =cal_distance(ip_loc[1],ip_loc[0],ec2_lat_lot[1],ec2_lat_lot[0])
         result[distance] = value
     print("result = ",result)
     keys =sorted(result)
