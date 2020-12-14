@@ -54,9 +54,8 @@ do
 	ssh -i $keyfile $username@$host 'mkdir ~/project5CDN'
 	
         
-	scp -i $keyfile httpserver.py $username@$host:'~/project5CDN'
-    scp -i $keyfile util.py $username@$host:'~/project5CDN'
-    scp -i $keyfile httpserver $username@$host:'~/project5CDN'
+	scp -i $keyfile httpserver.py util.py httpserver $username@$host:'~/project5CDN'
+   
 	
         
 
@@ -73,9 +72,8 @@ ssh -i $keyfile $username@$dnsserver 'rm -rf ~/project5CDN'
 ssh -i $keyfile $username@$dnsserver 'mkdir ~/project5CDN'
 
 
-scp -i $keyfile dnsserver.py $username@$dnsserver:'~/project5CDN'
-scp -i $keyfile dnsserver $username@$dnsserver:'~/project5CDN'
-scp -i $keyfile find_host.py $username@$dnsserver:'~/project5CDN'
+scp -i $keyfile dnsserver.py dnsserver find_host.py $username@$dnsserver:'~/project5CDN'
+
 
 
 
