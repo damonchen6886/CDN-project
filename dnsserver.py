@@ -248,7 +248,9 @@ def starter():
         client_addr = data[1]
         # print(client_addr)
         client_ip_addr = data[1][0]
-        #############
+
+        #same client ip for dnslookup will be saved for 3 mins in cache
+        #so it will direction return a ec2 ip to clinet instead of lookup again
         if client_ip_addr in CACHE.keys():
             if(time.time() - CACHE[client_ip_addr][1] < CACHE_TIME):
                 response_packet = pack_all(CACHE[client_ip_addr][0],packet)
