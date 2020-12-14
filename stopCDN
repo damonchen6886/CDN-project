@@ -32,9 +32,9 @@ do
  	         esac
 done
 
-echo "===================================================================================="
-echo "Replica Server Deploy is stopping now !"
-echo "===================================================================================="
+
+echo "begin to stop replicas!"
+
 
 for host in "${replicas[@]}"
 do
