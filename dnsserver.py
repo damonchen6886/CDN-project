@@ -89,6 +89,8 @@ ANS_END_IDX = 0
 TWO_EC2_IP = []
 CACHE = {}
 CACHE_TIME = 180
+MAX_CACHE_SIZE = 5000
+DOT = 32
 def build_server():
     server = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     # server.bind(("",PORT))
@@ -96,7 +98,7 @@ def build_server():
 
 
 
-
+# oricess header of the DNS packet, return the finished header packet
 def process_header(data):
     # print(data)
     dns_header_data  = data[0:12]
@@ -109,12 +111,8 @@ def process_header(data):
     head_packet = pack('!HHHHHH',id,flag,qdcount,ancount,nscount,arcount)
     return head_packet
     # return 
-    
 
-# def findDomain(data):
-#     dns_question_data = data[12:]
-#     domain_length = unpack("!B",dns_question_data[0])
-
+# find the domain of the DNS packet, mark the domian name end index   
 def findDomain(data):
     dns_question_data = data[12:]
     i = 1
@@ -123,7 +121,7 @@ def findDomain(data):
         d = dns_question_data[i]
         if d == 0:
             break
-        if d < 32:
+        if d < DOT:
             name+= "."
         else:
             name = name + chr(dns_question_data[i])
@@ -137,6 +135,7 @@ def findDomain(data):
     # tpye_and_classify = dns_question_data[i+1:i+5]
     return
 
+# process_question part of the DNS packet
 def process_question(data):
     # if data >= 12:
     index = ANS_END_IDX
@@ -146,7 +145,7 @@ def process_question(data):
     return dns_question_data
     # return
 
-
+# process answer part of the DNS packet, return answer part
 def process_answer(ec2_ip_addr):
     rname = 0xC00C #49164
     ttype =0x0001
@@ -161,7 +160,7 @@ def process_answer(ec2_ip_addr):
     return ans_packet
 
 
-
+# pack all sections of DNS packet and retun a finish packet ready to send to client
 def pack_all(ec2_ip_addr,data):
     header = process_header(data)
     findDomain(data)
@@ -171,15 +170,14 @@ def pack_all(ec2_ip_addr,data):
     return header+ question + answer + data[12+ ANS_END_IDX:]
 
 
-    #TODO: add cache to improve the performance: record those ips that already made request before into dictionary 
-    #TODO: add DNS to httpserver communication to get RTTT and improve the accuracy of the best EC2
+# create http requst to HTTP server
 def gengrate_request_2http(ec2_ip):
     path = "/testing-" + ec2_ip
     request = "GET " + path + " HTTP/1.1"
     print(request)
     return request
 
-
+# send requst, get the RTT from the ec2 server, return the rtt from the receive message
 def create_socket_for_http(ec2_ip):
     print("***********creating socket", ec2_ip)
     httpsocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -209,13 +207,12 @@ def get_rtt_for_top2(TWO_EC2_IP):
         rtts.append[rtt]
     return rtts
 
-
+# decide the best two server 
 def get_best_ec2_client():
     rtts = get_rtt_for_top2(TWO_EC2_IP)
     if rtts[0] > rtts[1]:
         return TWO_EC2_IP[1]
-    else:
-        return TWO_EC2_IP[0]
+    return TWO_EC2_IP[0]
 
 
 #update global variable cache
@@ -230,7 +227,7 @@ def update_cache(client_ip_addr):
 
 
 
-#  needs: best_ec2_ip  data[0](bytes)  address(host, port)
+#  initilize the program
 def starter():
     # initialize server
     server_socket = build_server()
@@ -265,7 +262,7 @@ def starter():
        
         global TWO_EC2_IP
         TWO_EC2_IP = get_min_ec2_loc(client_ip_addr)
-        print(TWO_EC2_IP)
+        # print(TWO_EC2_IP)
         best_ec2_server = TWO_EC2_IP[0]
 
         # best_ec2_server = get_best_ec2_client()
