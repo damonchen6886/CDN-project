@@ -19,7 +19,7 @@ NEWLINE = '\r\n\r\n'
 HALFNEWLINE = '\r\n'
 READBINARY = 'rb'
 WRITEBINARY = 'wb'
-TEMPFILE = '.temp'
+DATFILE = '.dat'
 HTTP200 = 'HTTP/1.1 200 OK'
 
 """
@@ -51,35 +51,10 @@ class LocalCache:
     def generateCacheFolder(self):
         with self.lock:
             if not os.path.exists(MY_CACHE_FOLDER):
-                return []
+                return None
             else:
                 return list(map(lambda x: (x, 1), os.listdir(MY_CACHE_FOLDER)))
 
-    """
-    taverse local cache to see if cache exists
-    """
-    def visitLocalCache(self, path):
-        with self.lock:
-
-            for cache in self.cur_cache:
-
-                if hashing_path(path) == cache[0]:
-                    self.cur_cache.append((hashing_path(path), cache[1] + 1))
-                    self.cur_cache.remove(cache)
-                    try:
-                        file = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), READBINARY).read()                        
-                        gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), READBINARY).close()
-                        print('============================================')
-                        print('cache found in local cache ', self.cur_cache)
-                        print('============================================')
-                        return file
-                    except Exception as e:
-                        print(e)
-                        self.cur_cache.remove(cache)
-                        os.remove(MY_CACHE_FOLDER_PATH + hashing_path(path))
-                        return None
-
-            return None
 
     """
     modify local cache depends on total size
@@ -87,13 +62,13 @@ class LocalCache:
     def writeToLocalCache(self, path, data):
         with self.lock:
 
-            file = gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY)
+            file = gzip.open(hashing_path(path) + DATFILE, WRITEBINARY)
             file.write(data)
             
-            gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY).close()
-            get_size = os.path.getsize(hashing_path(path) + TEMPFILE)
+            file.close()
+            get_size = os.path.getsize(hashing_path(path) + DATFILE)
             if get_size > LIMIT_10MB:
-                os.remove(hashing_path(path) + TEMPFILE)
+                os.remove(hashing_path(path) + DATFILE)
                 return
             else:
                 total_size = 0
@@ -107,14 +82,48 @@ class LocalCache:
                     file_to_remove = self.cur_cache.pop(0)[0]
                     os.remove(MY_CACHE_FOLDER_PATH + file_to_remove)
 
-                os.remove(hashing_path(path) + TEMPFILE)
-                temp = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY)
+                os.remove(hashing_path(path) + DATFILE)
+                temp = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz', WRITEBINARY)
                 temp.write(data)
-                gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY).close()
+                temp.close()
                 self.cur_cache.append((hashing_path(path), 1))
                 print('============================================')
                 print('changes made to local cache', self.cur_cache)
                 print('============================================')
+
+    """
+    taverse local cache to see if cache exists
+    """
+    def visitLocalCache(self, path):
+        with self.lock:
+
+            for cache in self.cur_cache:
+
+                if hashing_path(path) == cache[0]:
+                    self.cur_cache.append((hashing_path(path), cache[1] + 1))
+                    self.cur_cache.remove(cache)
+                    try:
+                        print("111111111111111111111111111111111111")
+                        print(MY_CACHE_FOLDER_PATH + hashing_path(path))
+                        file = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz', READBINARY) 
+                        print("!!!!!!!!!!!!!!!!!!!!!!2222")
+                        getfile = file.read()
+                        print("222222222222222222222222222222222222")                       
+                        file.close()
+                        print('============================================')
+                        print('cache found in local cache ', self.cur_cache)
+                        print('============================================')
+                        return getfile
+                    except Exception as e:
+                        print(e)
+                        print("3333333333333333333333333333333333333")
+                        self.cur_cache.remove(cache)
+                        os.remove(MY_CACHE_FOLDER_PATH + hashing_path(path))
+                        return None
+
+            return None
+
+
 
 
 
