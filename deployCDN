@@ -9,7 +9,7 @@ replicas=(
     ec2-3-101-37-125.us-west-1.compute.amazonaws.com
 )
 
-dnsserver=cs5700cdnproject.ccs.neu.edu
+dnsserver="cs5700cdnproject.ccs.neu.edu"
 
 
 while getopts p:o:n:u:i: args
