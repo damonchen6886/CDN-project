@@ -1,0 +1,84 @@
+#!/bin/bash
+
+replicas=(
+    ec2-34-238-192-84.compute-1.amazonaws.com
+    ec2-13-231-206-182.ap-northeast-1.compute.amazonaws.com
+    ec2-13-239-22-118.ap-southeast-2.compute.amazonaws.com
+    ec2-34-248-209-79.eu-west-1.compute.amazonaws.com
+    ec2-18-231-122-62.sa-east-1.compute.amazonaws.com
+    ec2-3-101-37-125.us-west-1.compute.amazonaws.com
+)
+
+dnsserver=cs5700cdnproject.ccs.neu.edu
+
+
+while getopts p:o:n:u:i: args
+do
+	case $args in
+		p)
+		   
+		   ;;
+		o)
+		   
+		   ;;
+		n)
+		   
+		   ;;
+		u)
+		   username=$OPTARG 
+		   echo $username
+		   ;;
+		i)
+		   keyfile=$OPTARG
+		   
+		   ;;
+		?)
+		   echo "usage: ./deployCDN -p <port> -o <origin> -n <name> -u <username> -i <keyfile>"
+		   exit 1
+		   ;;
+ 	esac
+done
+shift $((OPTIND-1))
+
+echo "@@@@@@@@@@@@@@@@@@"
+echo "Begin to deploy replicas"
+echo "@@@@@@@@@@@@@@@@@@"
+
+for host in "${replicas[@]}"
+do
+	echo "Deploying host: " $host
+        echo $keyfile 
+
+    ssh -i $keyfile $username@$host 'rm -rf ~/project5CDN'
+	
+	ssh -i $keyfile $username@$host 'mkdir ~/project5CDN'
+	
+        
+	scp -i $keyfile httpserver.py $username@$host:'~/project5CDN'
+    scp -i $keyfile util.py $username@$host:'~/project5CDN'
+    scp -i $keyfile httpserver $username@$host:'~/project5CDN'
+	
+        
+
+done
+
+
+echo "Replicas done"
+echo "DNS deploying"
+
+
+
+
+ssh -i $keyfile $username@$dnsserver 'rm -rf ~/project5CDN'
+ssh -i $keyfile $username@$dnsserver 'mkdir ~/project5CDN'
+
+
+scp -i $keyfile dnsserver.py $username@$dnsserver:'~/project5CDN'
+scp -i $keyfile dnsserver $username@$dnsserver:'~/project5CDN'
+scp -i $keyfile find_host.py $username@$dnsserver:'~/project5CDN'
+
+
+
+
+
+echo "DNS deployed"

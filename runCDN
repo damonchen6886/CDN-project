@@ -1,0 +1,61 @@
+#!/bin/bash
+
+replicas=(
+    ec2-34-238-192-84.compute-1.amazonaws.com
+    ec2-13-231-206-182.ap-northeast-1.compute.amazonaws.com
+    ec2-13-239-22-118.ap-southeast-2.compute.amazonaws.com
+    ec2-34-248-209-79.eu-west-1.compute.amazonaws.com
+    ec2-18-231-122-62.sa-east-1.compute.amazonaws.com
+    ec2-3-101-37-125.us-west-1.compute.amazonaws.com
+)
+
+while getopts p:o:n:u:i: args
+do
+	case $args in
+		p) port=$OPTARG
+		   echo $port
+		   ;;
+		o) origin=$OPTARG
+		   echo $origin	
+		   ;;
+		n) name=$OPTARG 
+        
+		   echo $name
+		   ;;
+		u) username=$OPTARG 
+		   echo $username
+		   ;;
+		i) keyfile=$OPTARG 
+		   echo $keyfile
+		   ;;
+		?)
+		   echo "usage: ./runCDN -p <port> -o <origin> -n <name> -u <username> -i <keyfile>"
+		   exit 1
+		   ;;
+ 	         esac
+done
+
+
+
+
+
+for host in "${replicas[@]}"
+do
+	echo "running" $host
+        
+	ssh -i $keyfile -n -f $username@$host "sh -c 'cd ~/project5CDN/; nohup ./httpserver -p $port -o $origin > /dev/null 2>&1 &'"
+done
+
+
+
+dnsserver="cs5700cdnproject.ccs.neu.edu"
+
+echo "Running DNS Server" $dnsserver
+
+echo "port ----->" $port
+echo "name ------>" $name
+
+
+ssh -i $keyfile -n -f $username@$dnsserver "sh -c 'cd ~/project5CDN/; nohup ./dnsserver -p $port -n $name > /dev/null 2>&1 &'"
+
+echo "DNS server running successfully"

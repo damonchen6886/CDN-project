@@ -1,0 +1,56 @@
+#!/bin/bash
+
+replicas=(
+    ec2-34-238-192-84.compute-1.amazonaws.com
+    ec2-13-231-206-182.ap-northeast-1.compute.amazonaws.com
+    ec2-13-239-22-118.ap-southeast-2.compute.amazonaws.com
+    ec2-34-248-209-79.eu-west-1.compute.amazonaws.com
+    ec2-18-231-122-62.sa-east-1.compute.amazonaws.com
+    ec2-3-101-37-125.us-west-1.compute.amazonaws.com
+)
+
+
+while getopts p:o:n:u:i: args
+do
+	case $args in
+		p) 
+		   ;;
+		o) 
+		   ;;
+		n)
+		   ;;
+		u) username=$OPTARG 
+		   echo $username
+		   ;;
+		i) keyfile=$OPTARG
+		   echo $keyfile
+		   ;;
+		?)
+		   echo "usage: ./stopCDN -p <port> -o <origin> -n <name> -u <username> -i <keyfile>"
+		   exit 1
+		   ;;
+ 	         esac
+done
+
+echo "===================================================================================="
+echo "Replica Server Deploy is stopping now !"
+echo "===================================================================================="
+
+for host in "${replicas[@]}"
+do
+	
+	ssh -i $keyfile $username@$host 'killall python'
+done
+
+echo "Replicas stopped"
+
+
+
+dnsserver="cs5700cdnproject.ccs.neu.edu"
+
+echo "Stopping DNS Server" $dnsserver
+
+ssh -i $keyfile $username@$dnsserver 'killall python'
+
+
+echo "DNS server stopped successfully"

@@ -24,6 +24,16 @@ EC2_IP = {
 #attributes：https://blog.ip2location.com/knowledge-base/find-distance-between-2-ips-using-bash/
 # IP api: 
 #api:http://ip-api.com/json
+
+# for performace, we hardcode the EC2 latitude and longtitude by maunnly lookedup from the API above.
+EC2_IP_LOCATION= {
+  "ec2-34-238-192-84.compute-1.amazonaws.com":[39.0438,-77.4874],
+"ec2-13-231-206-182.ap-northeast-1.compute.amazonaws.com":[35.6895,139.692],
+"ec2-13-239-22-118.ap-southeast-2.compute.amazonaws.com":[-33.8591,151.2002],
+"ec2-34-248-209-79.eu-west-1.compute.amazonaws.com":[53.3498,-6.26031],
+"ec2-18-231-122-62.sa-east-1.compute.amazonaws.com":[-23.5505,-46.6333],
+"ec2-3-101-37-125.us-west-1.compute.amazonaws.com":[37.3394,-121.895]  
+}
 import requests
 import json
 import math
@@ -53,11 +63,13 @@ def get_min_ec2_loc(ip_addr):
     result = {}
     top_two_ec2 = []
     for key, value in EC2_IP.items():
-        ec2_lat_lot = get_lat_lon(value)
+        ec2_lat_lot = EC2_IP_LOCATION[key]
+        print("ec2_lat_lot",ec2_lat_lot)
         distance =cal_distance(ip_loc[0],ip_loc[1],ec2_lat_lot[0],ec2_lat_lot[1])
         result[distance] = value
-
+    
     keys =sorted(result)
+    print(keys)
     top_two_ec2.append(result[keys[0]])
     top_two_ec2.append(result[keys[1]])
     # print(top_two_ec2)
