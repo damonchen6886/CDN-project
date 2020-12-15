@@ -42,8 +42,11 @@ done
 for host in "${replicas[@]}"
 do
 	echo "running" $host
+	echo "port" $port
+	echo "port" $origin
+	
         
-	ssh -i $keyfile -n -f $username@$host "sh -c 'cd ~/project5CDN/; nohup ./httpserver -p $port -o $origin > /dev/null 2>&1 &'"
+	ssh -i $keyfile -n -f $username@$host "sh -c 'cd ~/project5CDN/; nohup python3 httpserver.py -p $port -o $origin '"
 done
 
 
@@ -56,6 +59,6 @@ echo "port ----->" $port
 echo "name ------>" $name
 
 
-ssh -i $keyfile -n -f $username@$dnsserver "sh -c 'cd ~/project5CDN/; nohup ./dnsserver -p $port -n $name > /dev/null 2>&1 &'"
+ssh -i $keyfile -n -f $username@$dnsserver "sh -c 'cd ~/project5CDN/; nohup python3 dnsserver.py -p $port -n $name '"
 
 echo "DNS server running successfully"

@@ -19,7 +19,7 @@ NEWLINE = '\r\n\r\n'
 HALFNEWLINE = '\r\n'
 READBINARY = 'rb'
 WRITEBINARY = 'wb'
-TEMPFILE = '.temp'
+DATFILE = '.dat'
 HTTP200 = 'HTTP/1.1 200 OK'
 
 """
@@ -51,9 +51,45 @@ class LocalCache:
     def generateCacheFolder(self):
         with self.lock:
             if not os.path.exists(MY_CACHE_FOLDER):
-                return []
+                return None
             else:
                 return list(map(lambda x: (x, 1), os.listdir(MY_CACHE_FOLDER)))
+
+
+    """
+    modify local cache depends on total size
+    """
+    def writeToLocalCache(self, path, data):
+        with self.lock:
+
+            file = gzip.open(hashing_path(path) + DATFILE, WRITEBINARY)
+            file.write(data)
+            
+            file.close()
+            get_size = os.path.getsize(hashing_path(path) + DATFILE)
+            if get_size > LIMIT_10MB:
+                os.remove(hashing_path(path) + DATFILE)
+                return
+            else:
+                total_size = 0
+                cache = os.listdir(MY_CACHE_FOLDER)
+                for each_cache in cache:
+                    total_size += os.path.getsize(MY_CACHE_FOLDER_PATH + each_cache)
+                total_size += get_size
+
+                while total_size >= LIMIT_10MB:
+                    self.cur_cache.sort(key=lambda x: x[1], reverse = True)
+                    file_to_remove = self.cur_cache.pop()[0]
+                    os.remove(MY_CACHE_FOLDER_PATH + file_to_remove)
+
+                os.remove(hashing_path(path) + DATFILE)
+                temp = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz', WRITEBINARY)
+                temp.write(data)
+                temp.close()
+                self.cur_cache.append((hashing_path(path), 1))
+                print('============================================')
+                print('changes made to local cache', self.cur_cache)
+                print('============================================')
 
     """
     taverse local cache to see if cache exists
@@ -67,54 +103,27 @@ class LocalCache:
                     self.cur_cache.append((hashing_path(path), cache[1] + 1))
                     self.cur_cache.remove(cache)
                     try:
-                        file = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), READBINARY).read()                        
-                        gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), READBINARY).close()
+                        print("111111111111111111111111111111111111")
+                        print(MY_CACHE_FOLDER_PATH + hashing_path(path))
+                        file = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz', READBINARY) 
+                        print("!!!!!!!!!!!!!!!!!!!!!!2222")
+                        getfile = file.read()
+                        print("222222222222222222222222222222222222")                       
+                        file.close()
                         print('============================================')
                         print('cache found in local cache ', self.cur_cache)
                         print('============================================')
-                        return file
+                        return getfile
                     except Exception as e:
                         print(e)
+                        print("3333333333333333333333333333333333333")
                         self.cur_cache.remove(cache)
                         os.remove(MY_CACHE_FOLDER_PATH + hashing_path(path))
                         return None
 
             return None
 
-    """
-    modify local cache depends on total size
-    """
-    def writeToLocalCache(self, path, data):
-        with self.lock:
 
-            file = gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY)
-            file.write(data)
-            
-            gzip.open(hashing_path(path) + TEMPFILE, WRITEBINARY).close()
-            get_size = os.path.getsize(hashing_path(path) + TEMPFILE)
-            if get_size > LIMIT_10MB:
-                os.remove(hashing_path(path) + TEMPFILE)
-                return
-            else:
-                total_size = 0
-                cache = os.listdir(MY_CACHE_FOLDER)
-                for each_cache in cache:
-                    total_size += os.path.getsize(MY_CACHE_FOLDER_PATH + each_cache)
-                total_size += get_size
-
-                while total_size >= LIMIT_10MB:
-                    self.cur_cache.sort(key=lambda x: x[1])
-                    file_to_remove = self.cur_cache.pop(0)[0]
-                    os.remove(MY_CACHE_FOLDER_PATH + file_to_remove)
-
-                os.remove(hashing_path(path) + TEMPFILE)
-                temp = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY)
-                temp.write(data)
-                gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path), WRITEBINARY).close()
-                self.cur_cache.append((hashing_path(path), 1))
-                print('============================================')
-                print('changes made to local cache', self.cur_cache)
-                print('============================================')
 
 
 
@@ -150,8 +159,8 @@ class HttpServer:
                 http_request = client_socket.recv(1024).decode('utf-8')
                 if self.check_rtt not in getHttpPath(http_request):
 
-                    a = self.local_cache.visitLocalCache(getHttpPath(http_request))
-                    if a is None:
+                    judge_cache = self.local_cache.visitLocalCache(getHttpPath(http_request))
+                    if judge_cache is None:
                         url = ORIGIN + ':8080' + getHttpPath(http_request)
                         print('******************************')
                         print('not found in local cache, pinging server...')
@@ -165,21 +174,21 @@ class HttpServer:
                         if server_response.code != 200:
                             print('HTTP code != 200')
 
-                        headers = HTTP200 + HALFNEWLINE + server_response.info().__str__()
+                        
                         content = server_response.read()
                         if content is None:
                             data = None
 
                         else:
                             self.local_cache.writeToLocalCache(getHttpPath(http_request), content)
-                            data = (headers + HALFNEWLINE).encode('utf-8') + content
+                            data = (HTTP200 + HALFNEWLINE + server_response.info().__str__() + HALFNEWLINE).encode('utf-8') + content
                         
                     else:
                         print('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                         print('fetched from local cache.')
                         print('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-                        response_headers = HTTP200 + HALFNEWLINE + 'Content-Length: ' + str(len(a)) + NEWLINE
-                        data = response_headers.encode('utf-8') + a
+                        response_headers = HTTP200 + HALFNEWLINE + 'Content-Length: ' + str(len(judge_cache)) + NEWLINE
+                        data = response_headers.encode('utf-8') + judge_cache
 
                     client_socket.sendall(data)
                     client_socket.close()
