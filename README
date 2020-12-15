@@ -56,6 +56,7 @@ We spent tons of time on active measurement. We were having trouble with packet 
 Testing is also challenaing and time-comsuming. 
 If we have more time:
 1. we would dive deeper into the active measurement. The current version of RTT is not stable and always lost packets.
+ Therefore, we put this mechanism on-hold
 2. we would improve the DNS cache mechanism, instead cache a specific IP that performed DNS lookup in the last 3 mins, 
 we might return a replica from the cache if the new client IP is geographically *close* to IPs in the cache.
 3. we would improve the HTTP cache mechanism.
