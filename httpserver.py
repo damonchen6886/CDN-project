@@ -87,9 +87,9 @@ class LocalCache:
                 temp.write(data)
                 temp.close()
                 self.cur_cache.append((hashing_path(path), 1))
-                print('============================================')
-                print('changes made to local cache', self.cur_cache)
-                print('============================================')
+                # print('============================================')
+                # print('changes made to local cache', self.cur_cache)
+                # print('============================================')
 
     """
     taverse local cache to see if cache exists
@@ -103,20 +103,20 @@ class LocalCache:
                     self.cur_cache.append((hashing_path(path), cache[1] + 1))
                     self.cur_cache.remove(cache)
                     try:
-                        print("111111111111111111111111111111111111")
-                        print(MY_CACHE_FOLDER_PATH + hashing_path(path))
+                        # print("111111111111111111111111111111111111")
+                        # print(MY_CACHE_FOLDER_PATH + hashing_path(path))
                         file = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz', READBINARY) 
-                        print("!!!!!!!!!!!!!!!!!!!!!!2222")
+                        # print("!!!!!!!!!!!!!!!!!!!!!!2222")
                         getfile = file.read()
-                        print("222222222222222222222222222222222222")                       
+                        # print("222222222222222222222222222222222222")
                         file.close()
-                        print('============================================')
-                        print('cache found in local cache ', self.cur_cache)
-                        print('============================================')
+                        # print('============================================')
+                        # print('cache found in local cache ', self.cur_cache)
+                        # print('============================================')
                         return getfile
                     except Exception as e:
                         print(e)
-                        print("3333333333333333333333333333333333333")
+                        # print("3333333333333333333333333333333333333")
                         self.cur_cache.remove(cache)
                         os.remove(MY_CACHE_FOLDER_PATH + hashing_path(path))
                         return None
@@ -150,9 +150,9 @@ class HttpServer:
 
     def running_server(self):
         self.http_server.listen(1)
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print('connection established')
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        # print('connection established')
+        # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         while True:
             try:
                 client_socket, address = self.http_server.accept()
@@ -162,9 +162,9 @@ class HttpServer:
                     judge_cache = self.local_cache.visitLocalCache(getHttpPath(http_request))
                     if judge_cache is None:
                         url = ORIGIN + ':8080' + getHttpPath(http_request)
-                        print('******************************')
-                        print('not found in local cache, pinging server...')
-                        print('******************************')
+                        # print('******************************')
+                        # print('not found in local cache, pinging server...')
+                        # print('******************************')
                         
                         parsed_url = 'http://' + url
 
@@ -184,9 +184,9 @@ class HttpServer:
                             data = (HTTP200 + HALFNEWLINE + server_response.info().__str__() + HALFNEWLINE).encode('utf-8') + content
                         
                     else:
-                        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-                        print('fetched from local cache.')
-                        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                        # print('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                        # print('fetched from local cache.')
+                        # print('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                         response_headers = HTTP200 + HALFNEWLINE + 'Content-Length: ' + str(len(judge_cache)) + NEWLINE
                         data = response_headers.encode('utf-8') + judge_cache
 
@@ -196,9 +196,9 @@ class HttpServer:
 
                 else:
                     rtt = self.scamper_rtt(getHttpPath(http_request))
-                    print('rtt', rtt)
+                    # print('rtt', rtt)
                     client_socket.sendall(rtt)
-                    print("rtt sent!!!!!********")
+                    # print("rtt sent!!!!!********")
                     client_socket.close()
 
             except KeyboardInterrupt:
@@ -215,13 +215,13 @@ if __name__ == "__main__":
         if (os.path.exists(MY_CACHE_FOLDER)):
             server = HttpServer()
             server.server_start(input_port, input_origin)
-            print('listening1...')
+            # print('listening1...')
             server.running_server()
         else:
             os.mkdir(MY_CACHE_FOLDER)
             server = HttpServer()
             server.server_start(input_port, input_origin)
-            print('listening1...')
+            # print('listening1...')
             server.running_server()
 
     

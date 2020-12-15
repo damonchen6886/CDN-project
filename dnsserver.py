@@ -237,7 +237,7 @@ def starter():
     server_socket.bind(("",PORT))
     
     while 1:
-        print("running")
+        # print("running")
 
         data = server_socket.recvfrom(BUF_SIZE)
         packet = data[0]
