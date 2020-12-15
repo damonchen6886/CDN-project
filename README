@@ -5,6 +5,7 @@ Members: Chen Gu, Jiahao Song
 Chen's work mainly focused on building a working DNS server. He uses DNS redirection to send clients to the replica
 server with the fastest response time.
 Jiahao's work mainly focused on building an HTTP server with cache management that returns content requested by clients.
+He also implemented deploy/run/stopCDN scripts
 ========================================================================================================================
 httpserver.py
 1. This supports basic HTTP GET requests for the client to fetch web pages.
@@ -45,8 +46,7 @@ find_host.py
 helper for DNS lookup, it does all geolocation calculation.
 
 util.py
-helper for httpserver
-
+helper for httpserver, it hashes filepath for us to compare the uniqueness of each file
 ========================================================================================================================
 We faced the challenge of not having clear instructions on how to pack and unpack the DNS packet. We spent a lot of time
 packing the answer section.
@@ -55,8 +55,10 @@ We looked up plenty of information to find the best way to calculate the geoloca
 We spent tons of time on active measurement. We were having trouble with packet loss from the DNS server to Httpserver while calculating RTT.
 Testing is also challenaing and time-comsuming. 
 If we have more time:
-1. we would dive deeper into the active measurement. The current version of RTT is not stable and always lost packets.
+1. We would dive deeper into the active measurement. The current version of RTT is not stable and always lost packets.
  Therefore, we put this mechanism on-hold
-2. we would improve the DNS cache mechanism, instead cache a specific IP that performed DNS lookup in the last 3 mins, 
+2. We would improve the DNS cache mechanism, instead cache a specific IP that performed DNS lookup in the last 3 mins,
 we might return a replica from the cache if the new client IP is geographically *close* to IPs in the cache.
-3. we would improve the HTTP cache mechanism.
+3. We would improve the HTTP cache mechanism. We used the sort function to sort our cache folder in a descending order,
+meaning that the cache with the least hit will be arranged to the end of the list, we then just pop it and remove the
+file from myCache. If the data limit is way more than 10MB, our caching mechanism would be less efficient.
