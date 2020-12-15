@@ -9,37 +9,9 @@ He also implemented deploy/run/stopCDN scripts
 ========================================================================================================================
 httpserver.py
 1. This supports basic HTTP GET requests for the client to fetch web pages.
-2. The server will run on a specified port (40000 - 65535) of any machines
-Caching Mechanism: Similar to LRU(Least Recently Used cache) Algorithm, leaning towards LCU(Least Commonly Used). Remove
-the record with the least hit count. Pseudocode posted below:
-            if cache hit:
-                respond client with the file
-            elif cache doesn't get hit:
-                fetch file from original server
-                respond client with that file
-communication with DNS server: we used scamper that suggested by the professor for DNS active measurement; httpserver will process the request from DNS and 
-returns a raw message that contains min/avg/max/stddev of RTT to DNS. Then DNS will process the message and pick the best server accordingly.
 
 dnsserver.py
 1. This provides basic DNS Server function with the purpose of return client optimal IP
-(finding the fastest replica IP is implemented based on geolocation).
-2. We implemented DNS protocol with UDP. The process is listed below:
-             1. Receive UDP packet from Client
-             2. Unpack the packet
-             3. Select the best two replicas based on geolocation
-             4. Check if the client IP is in the cache
-             5. Otherwise, DNS communicate with the top two replicas and get RTT
-             6. Pick the best replica based on the lowest RTT
-             7. Pack the header, question, and
-             8. Pack answer section with best replica IP
-             9. Send the response to the client
-
-We use http://ip-api.com/ API to fetch geo info of a particular IP.
-We calculated the location of the server based on the latitude and longitude provided by the API above.
-In order to minimize the latency from DNS lookup, we did two things:
-1. we hardcode the EC2 geolocation into a dictionary for lookup, so no need to call external API multiple times and save the time ~15-20ms
-2.We implemented cache for DNS to improve the latency. If the client has looked up the DNS within the last 3 mins, we will
-return the replica IP directly from the cache. It significantly decreases the DNS lookup time. DNS lookup time will turn to ~10ms if the client IP is saved in the cache.
 
 Other files: 
 find_host.py
@@ -47,18 +19,9 @@ helper for DNS lookup, it does all geolocation calculation.
 
 util.py
 helper for httpserver, it hashes filepath for us to compare the uniqueness of each file
-========================================================================================================================
-We faced the challenge of not having clear instructions on how to pack and unpack the DNS packet. We spent a lot of time
-packing the answer section.
-We faced the challenge of implementing working cache management on an HTTP server using JSON decoding and encoding.
-We looked up plenty of information to find the best way to calculate the geolocation.
-We spent tons of time on active measurement. We were having trouble with packet loss from the DNS server to Httpserver while calculating RTT.
-Testing is also challenaing and time-comsuming. 
-If we have more time:
-1. We would dive deeper into the active measurement. The current version of RTT is not stable and always lost packets.
- Therefore, we put this mechanism on-hold
-2. We would improve the DNS cache mechanism, instead cache a specific IP that performed DNS lookup in the last 3 mins,
-we might return a replica from the cache if the new client IP is geographically *close* to IPs in the cache.
-3. We would improve the HTTP cache mechanism. We used the sort function to sort our cache folder in a descending order,
-meaning that the cache with the least hit will be arranged to the end of the list, we then just pop it and remove the
-file from myCache. If the data limit is way more than 10MB, our caching mechanism would be less efficient.
+
+deployCDN/runCDN/stopCDN
+scrips that deploy/run/stop CDN
+
+
+for more design deails and challenenges, and implementation approach, please read repot
