@@ -11,7 +11,7 @@ from util import *
 Use global variables to reduce redundancy
 """
 LIMIT_10MB = 10485760
-LIMIT_1MB = 10485760 / 25
+# LIMIT_1MB = 10485760 / 25
 PORT = int(sys.argv[2])
 ORIGIN = sys.argv[4]
 MY_CACHE_FOLDER = 'myCache'
@@ -68,7 +68,7 @@ class LocalCache:
             
             file.close()
             get_size = os.path.getsize(hashing_path(path) + DATFILE)
-            if get_size > LIMIT_1MB:
+            if get_size > LIMIT_10MB:
                 os.remove(hashing_path(path) + DATFILE)
                 return
             else:
@@ -78,15 +78,15 @@ class LocalCache:
                     total_size += os.path.getsize(MY_CACHE_FOLDER_PATH + each_cache)
                 total_size += get_size
 
-                while total_size >= LIMIT_1MB:
+                while total_size >= LIMIT_10MB:
                     self.cur_cache.sort(key=lambda x: x[1], reverse = True)
-                    print("popping from")
+                    # print("popping from")
                     file_to_remove = self.cur_cache.pop()[0]
-                    print("ggggggggggggggggggggggggggggggggggggggggg")
-                    print(self.cur_cache)
-                    print("removing--------------------",file_to_remove)
+                    # print("ggggggggggggggggggggggggggggggggggggggggg")
+                    # print(self.cur_cache)
+                    # print("removing--------------------",file_to_remove)
                     total_size -= os.path.getsize(MY_CACHE_FOLDER_PATH + file_to_remove + '.gz')
-                    print("totalsize =======================",total_size)
+                    # print("totalsize =======================",total_size)
                     os.remove(MY_CACHE_FOLDER_PATH + file_to_remove + '.gz')
                     
 
@@ -113,22 +113,22 @@ class LocalCache:
                     try:
                         # print("111111111111111111111111111111111111")
                         # print(MY_CACHE_FOLDER_PATH + hashing_path(path))
-                        print("adsadsadasdsadadasdddddddddddd")
-                        print("visitedlocalcache ", MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz')
+                        # print("adsadsadasdsadadasdddddddddddd")
+                        # print("visitedlocalcache ", MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz')
                         file = gzip.open(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz', READBINARY) 
                         # print("!!!!!!!!!!!!!!!!!!!!!!2222")
                         getfile = file.read()
                         # print("222222222222222222222222222222222222")
                         file.close()
-                        print('============================================')
-                        print('cache found in local cache ', self.cur_cache)
-                        print('============================================')
+                        # print('============================================')
+                        # print('cache found in local cache ', self.cur_cache)
+                        # print('============================================')
                         return getfile
                     except Exception as e:
                         print(e)
                         # print("3333333333333333333333333333333333333")
                         self.cur_cache.remove(cache)
-                        print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+                        # print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
                         os.remove(MY_CACHE_FOLDER_PATH + hashing_path(path) + '.gz')
                         return None
 
@@ -174,9 +174,9 @@ class HttpServer:
                     
                     if judge_cache is None:
                         url = ORIGIN + ':8080' + getHttpPath(http_request)
-                        print('******************************')
-                        print('not found in local cache, pinging server...')
-                        print('******************************')
+                        # print('******************************')
+                        # print('not found in local cache, pinging server...')
+                        # print('******************************')
                         
                         parsed_url = 'http://' + url
 
