@@ -1,14 +1,12 @@
-Project5: Roll your own CDN(FINAL)
+Project: Roll your own CDN
 ========================================================================================================================
-Team: gusong
-Members: Chen Gu, Jiahao Song
-Chen's work mainly focused on building a working DNS server. He uses DNS redirection to send clients to the replica
-server with the fastest response time.
-Jiahao's work mainly focused on building an HTTP server with cache management that returns content requested by clients.
-He also implemented deploy/run/stopCDN scripts
+A small content delivery networks(CDN)
 ========================================================================================================================
 httpserver.py
 1. This supports basic HTTP GET requests for the client to fetch web pages.
+2. The server will run on a specified port (40000 - 65535) of any machines
+Caching Mechanism: Similar to LRU(Least Recently Used cache) Algorithm, leaning towards LCU(Least Commonly Used). Remove
+the record with the least hit count. Pseudocode posted below:
 
 dnsserver.py
 1. This provides basic DNS Server function with the purpose of return client optimal IP
