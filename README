@@ -10,6 +10,8 @@ the record with the least hit count. Pseudocode posted below:
 
 dnsserver.py
 1. This provides basic DNS Server function with the purpose of return client optimal IP
+Mechanism/Measurement: DNS look up is based on both passive measurment by measuring geographical location 
+and active measurement by measuring DNS <-> replica server RTT(Round-Trip-Time);
 
 Other files: 
 find_host.py
